@@ -29,6 +29,29 @@ A full-stack Vendor Onboarding System built using ASP.NET and SQL Server, design
 - Improve UI/UX
 - Deploy on cloud (Azure)
 
+## 📸 Screenshots
+
+(Add UI screenshots here)
+
+## ⚙️ Setup Instructions
+
+1. Clone the repo
+2. Open in Visual Studio
+3. Configure database in appsettings.json
+4. Run the project
+
+## 🧩 Features
+
+- Vendor registration & onboarding
+- Multi-level approval workflow
+- Document upload system
+- Role-based access
+
+## 🗄️ Database
+
+- SQL Server
+- Tables for vendor, approvals, documents
+
 ## 📌 Author
 
 Nanu Banshival
