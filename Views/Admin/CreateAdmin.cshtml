@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Create Admin";
+}
+
+<div class="container py-4" style="max-width:520px;">
+    <div class="page-head">
+        <span class="micro-label d-block mb-1">Access Control</span>
+        <h2 class="ds-h" style="font-size:1.85rem;">New <em style="font-style:italic;color:var(--brand-accent);font-weight:400;">Admin</em></h2>
+        <p class="lead">Add a new admin user to the system</p>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-1"></i> @ViewBag.Error
+        </div>
+    }
+
+    <div class="brand-panel">
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="e.g. john.doe" required autofocus />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Choose a strong password" required />
+                <small class="text-muted d-block mt-1">Use at least 8 characters with a mix of letters, numbers and symbols.</small>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Create Admin
+                </button>
+                <a href="/Admin/ManageAdmins" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

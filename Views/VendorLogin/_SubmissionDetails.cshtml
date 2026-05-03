@@ -1,0 +1,210 @@
+@model VendorOnboardingSystem.Models.Vendor
+@{
+    string Show(string val) => string.IsNullOrEmpty(val) ? "—" : val;
+}
+
+@functions {
+    public static string FileName(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return "";
+        var idx = path.LastIndexOf('/');
+        return idx >= 0 ? path.Substring(idx + 1) : path;
+    }
+}
+
+<div class="accordion" id="submissionAccordion">
+
+    <!-- 1. Legal Information -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#sec1">
+                <i class="bi bi-file-earmark-text me-2"></i>Legal Information
+            </button>
+        </h2>
+        <div id="sec1" class="accordion-collapse collapse show" data-bs-parent="#submissionAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><small class="text-muted d-block">Legal Name</small><span class="fw-semibold">@Show(Model.LegalName)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Trade Name</small><span class="fw-semibold">@Show(Model.TradeName)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Vendor Type</small><span class="fw-semibold">@Show(Model.VendorType)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Vendor Category</small><span class="fw-semibold">@Show(Model.VendorCategory)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Constitution</small><span class="fw-semibold">@Show(Model.Constitution)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Date of Incorporation</small><span class="fw-semibold">@(Model.DateOfIncorporation?.ToString("dd MMM yyyy") ?? "—")</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">CIN</small><span class="fw-semibold">@Show(Model.CIN)</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. PAN Details -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec2">
+                <i class="bi bi-credit-card-2-front me-2"></i>PAN Details
+            </button>
+        </h2>
+        <div id="sec2" class="accordion-collapse collapse" data-bs-parent="#submissionAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><small class="text-muted d-block">PAN Number</small><span class="fw-semibold">@Show(Model.PAN)</span></div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">PAN Copy</small>
+                        @if (!string.IsNullOrEmpty(Model.PANCopyPath))
+                        {
+                            <a href="@Model.PANCopyPath" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-download"></i> @FileName(Model.PANCopyPath)
+                            </a>
+                        }
+                        else { <span>—</span> }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. GST Details -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec3">
+                <i class="bi bi-receipt me-2"></i>GST Details
+            </button>
+        </h2>
+        <div id="sec3" class="accordion-collapse collapse" data-bs-parent="#submissionAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><small class="text-muted d-block">GST Registered</small><span class="fw-semibold">@Show(Model.GSTRegistered)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">GSTIN</small><span class="fw-semibold">@Show(Model.GSTIN)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Registration Type</small><span class="fw-semibold">@Show(Model.GSTRegistrationType)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">State Code</small><span class="fw-semibold">@Show(Model.StateCode)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Place of Supply</small><span class="fw-semibold">@Show(Model.PlaceOfSupply)</span></div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">GST Certificate</small>
+                        @if (!string.IsNullOrEmpty(Model.GSTCertificatePath))
+                        {
+                            <a href="@Model.GSTCertificatePath" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-download"></i> @FileName(Model.GSTCertificatePath)
+                            </a>
+                        }
+                        else { <span>—</span> }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. MSME Details -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec4">
+                <i class="bi bi-building me-2"></i>MSME Details
+            </button>
+        </h2>
+        <div id="sec4" class="accordion-collapse collapse" data-bs-parent="#submissionAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><small class="text-muted d-block">MSME Registered</small><span class="fw-semibold">@Show(Model.MSMERegistered)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Udyam Number</small><span class="fw-semibold">@Show(Model.UdyamNumber)</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. TDS Details -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec5">
+                <i class="bi bi-cash-coin me-2"></i>TDS Details
+            </button>
+        </h2>
+        <div id="sec5" class="accordion-collapse collapse" data-bs-parent="#submissionAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><small class="text-muted d-block">TDS Applicable</small><span class="fw-semibold">@Show(Model.TDSApplicable)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">TDS Sections</small><span class="fw-semibold">@Show(Model.TDSSections)</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Bank Details -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec6">
+                <i class="bi bi-bank me-2"></i>Bank Details
+            </button>
+        </h2>
+        <div id="sec6" class="accordion-collapse collapse" data-bs-parent="#submissionAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><small class="text-muted d-block">Account Holder Name</small><span class="fw-semibold">@Show(Model.AccountHolderName)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Bank Name</small><span class="fw-semibold">@Show(Model.BankName)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Account Number</small><span class="fw-semibold">@Show(Model.AccountNumber)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">IFSC Code</small><span class="fw-semibold">@Show(Model.IFSC)</span></div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Cancelled Cheque</small>
+                        @if (!string.IsNullOrEmpty(Model.CancelledChequePath))
+                        {
+                            <a href="@Model.CancelledChequePath" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-download"></i> @FileName(Model.CancelledChequePath)
+                            </a>
+                        }
+                        else { <span>—</span> }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Address -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec7">
+                <i class="bi bi-geo-alt me-2"></i>Address Details
+            </button>
+        </h2>
+        <div id="sec7" class="accordion-collapse collapse" data-bs-parent="#submissionAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><small class="text-muted d-block">Address Line 1</small><span class="fw-semibold">@Show(Model.AddressLine1)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Address Line 2</small><span class="fw-semibold">@Show(Model.AddressLine2)</span></div>
+                    <div class="col-md-4"><small class="text-muted d-block">City</small><span class="fw-semibold">@Show(Model.City)</span></div>
+                    <div class="col-md-4"><small class="text-muted d-block">State</small><span class="fw-semibold">@Show(Model.State)</span></div>
+                    <div class="col-md-4"><small class="text-muted d-block">PIN Code</small><span class="fw-semibold">@Show(Model.PINCode)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Country</small><span class="fw-semibold">@Show(Model.Country)</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Contact -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec8">
+                <i class="bi bi-person-lines-fill me-2"></i>Contact Information
+            </button>
+        </h2>
+        <div id="sec8" class="accordion-collapse collapse" data-bs-parent="#submissionAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><small class="text-muted d-block">Primary Contact</small><span class="fw-semibold">@Show(Model.PrimaryContactName)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Designation</small><span class="fw-semibold">@Show(Model.Designation)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Mobile Number</small><span class="fw-semibold">@Show(Model.MobileNumber)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Email</small><span class="fw-semibold">@Show(Model.Email)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Alternate Contact</small><span class="fw-semibold">@Show(Model.AlternateContactPerson)</span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Aadhar Number</small><span class="fw-semibold">@Show(Model.AadharNumber)</span></div>
+                    <div class="col-12">
+                        <small class="text-muted d-block">Aadhar Copy</small>
+                        @if (!string.IsNullOrEmpty(Model.AadharCopyPath))
+                        {
+                            <a href="@Model.AadharCopyPath" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-download"></i> @FileName(Model.AadharCopyPath)
+                            </a>
+                        }
+                        else { <span>—</span> }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

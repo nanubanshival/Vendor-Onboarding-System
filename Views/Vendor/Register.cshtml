@@ -1,0 +1,652 @@
+﻿@model VendorOnboardingSystem.ViewModels.VendorRegistrationVM
+
+@{
+    ViewData["Title"] = "Vendor Registration";
+}
+
+<style>
+    /* Hero */
+    .reg-hero {
+        background:
+            radial-gradient(700px 220px at 100% -30%, var(--brand-accent-subtle) 0%, transparent 60%),
+            radial-gradient(500px 160px at 0% 110%, var(--brand-accent-subtle) 0%, transparent 60%),
+            #FFFFFF;
+        border-bottom: 0.5px solid var(--brand-border);
+        padding: 2rem 0 1.5rem;
+        position: relative;
+    }
+    .reg-hero h1 {
+        font-family: var(--font-display);
+        font-weight: 500;
+        color: var(--brand-text);
+        letter-spacing: -.005em;
+    }
+    .reg-hero h1 em { font-style: italic; color: var(--brand-accent); font-weight: 400; }
+
+    /* Stepper */
+    .stepper { display: flex; overflow-x: auto; scrollbar-width: none; }
+    .stepper::-webkit-scrollbar { display: none; }
+    .step-item {
+        flex: 1; min-width: 56px; display: flex; flex-direction: column;
+        align-items: center; cursor: pointer; position: relative; padding: .2rem;
+        user-select: none;
+    }
+    .step-item:not(:last-child)::after {
+        content: ''; position: absolute;
+        top: 17px; left: calc(50% + 17px); right: calc(-50% + 17px);
+        height: 2px; background: var(--brand-border); z-index: 0;
+    }
+    .step-item.done:not(:last-child)::after { background: var(--brand-success); }
+    .step-circle {
+        width: 34px; height: 34px; border-radius: 50%;
+        border: 0.5px solid var(--brand-border); background: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: .78rem; font-weight: 600; color: var(--brand-text-3);
+        position: relative; z-index: 1; transition: all .2s;
+    }
+    .step-item.active .step-circle {
+        background: var(--brand-accent); border-color: var(--brand-accent); color: #fff;
+        box-shadow: 0 0 0 4px var(--brand-accent-subtle);
+    }
+    .step-item.done .step-circle {
+        background: var(--brand-success); border-color: var(--brand-success); color: #fff;
+    }
+    .step-label {
+        font-size: .65rem; font-weight: 600; color: var(--brand-text-3);
+        margin-top: .3rem; text-transform: uppercase; letter-spacing: .08em;
+        white-space: nowrap;
+    }
+    .step-item.active .step-label { color: var(--brand-accent); }
+    .step-item.done   .step-label { color: var(--brand-success); }
+
+    /* Form panel */
+    .form-panel {
+        background: #fff;
+        border: 0.5px solid var(--brand-border);
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        padding: 1.75rem; display: none;
+    }
+    .form-panel.active { display: block; }
+
+    /* Section heading */
+    .sec-head {
+        display: flex; align-items: center; gap: .75rem;
+        padding-bottom: 1rem; border-bottom: 0.5px solid var(--brand-border);
+        margin-bottom: 1.5rem;
+    }
+    .sec-icon {
+        width: 40px; height: 40px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
+        background: var(--brand-accent-subtle); color: var(--brand-accent);
+        border: 0.5px solid var(--brand-accent-soft);
+    }
+    .sec-head h5 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-weight: 500; font-size: 1.3rem;
+        color: var(--brand-text);
+        letter-spacing: -.005em;
+    }
+    .sec-head p { margin: .15rem 0 0; font-size: .82rem; color: var(--brand-text-2); }
+
+    /* Progress bar smooth */
+    .reg-progress {
+        background: var(--brand-border-soft);
+        height: 4px; border-radius: 999px; overflow: hidden;
+    }
+    #progressBar {
+        background: var(--brand-accent);
+        height: 100%; border-radius: 999px;
+        transition: width .4s ease;
+    }
+
+    /* Reveal section */
+    .reveal-box {
+        background: var(--brand-accent-subtle);
+        border: 0.5px dashed var(--brand-accent-soft);
+        border-radius: 11px; padding: 1.1rem; margin-top: .65rem;
+    }
+
+    /* TDS card */
+    .tds-card {
+        border: 0.5px solid var(--brand-border); border-radius: 9px;
+        padding: .7rem; cursor: pointer; transition: all .15s;
+        background: #fff;
+    }
+    .tds-card:hover { border-color: var(--brand-accent); background: var(--brand-accent-subtle); }
+
+    /* Nav footer */
+    .nav-footer {
+        display: flex; align-items: center; justify-content: space-between;
+        padding-top: 1.25rem; border-top: 0.5px solid var(--brand-border);
+        margin-top: 1.5rem;
+    }
+
+    @@media (max-width: 576px) {
+        .step-label { display: none; }
+        .form-panel { padding: 1.1rem; }
+    }
+</style>
+
+<!-- Hero -->
+<div class="reg-hero">
+    <div class="container text-center" style="max-width:820px;">
+        <span class="status-chip chip-new mb-3">
+            <i class="bi bi-shield-check"></i> Vendor Onboarding Portal
+        </span>
+        <h1 class="fw-bold mb-1" style="font-size:2rem;">Vendor <em>Registration</em></h1>
+        <p class="text-muted mb-0" style="font-size:.9rem;">Complete all 8 sections · Fields marked <span class="text-danger">*</span> are mandatory</p>
+    </div>
+</div>
+
+<div class="container pb-5" style="max-width:820px;">
+
+    <!-- Stepper card -->
+    <div class="brand-panel mb-4" style="margin-top:1rem;padding:1.1rem 1.25rem;">
+        <div class="d-flex justify-content-between small mb-2">
+            <span class="fw-semibold text-primary" id="stepText">Step 1 of 8</span>
+            <span class="text-muted" id="progressPercent">0% Complete</span>
+        </div>
+        <div class="reg-progress mb-3">
+            <div id="progressBar" style="width:0%"></div>
+        </div>
+
+        <div class="stepper" id="stepperEl">
+            <div class="step-item active" data-step="1">
+                <div class="step-circle"><i class="bi bi-building"></i></div>
+                <div class="step-label">Legal</div>
+            </div>
+            <div class="step-item" data-step="2">
+                <div class="step-circle"><i class="bi bi-credit-card"></i></div>
+                <div class="step-label">PAN</div>
+            </div>
+            <div class="step-item" data-step="3">
+                <div class="step-circle"><i class="bi bi-truck"></i></div>
+                <div class="step-label">GST</div>
+            </div>
+            <div class="step-item" data-step="4">
+                <div class="step-circle"><i class="bi bi-award"></i></div>
+                <div class="step-label">MSME</div>
+            </div>
+            <div class="step-item" data-step="5">
+                <div class="step-circle"><i class="bi bi-percent"></i></div>
+                <div class="step-label">TDS</div>
+            </div>
+            <div class="step-item" data-step="6">
+                <div class="step-circle"><i class="bi bi-bank"></i></div>
+                <div class="step-label">Bank</div>
+            </div>
+            <div class="step-item" data-step="7">
+                <div class="step-circle"><i class="bi bi-geo-alt"></i></div>
+                <div class="step-label">Address</div>
+            </div>
+            <div class="step-item" data-step="8">
+                <div class="step-circle"><i class="bi bi-person"></i></div>
+                <div class="step-label">Contact</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORM -->
+    <form asp-action="Register" method="post" enctype="multipart/form-data" id="vendorForm">
+        <input type="hidden" id="currentStep" name="currentStep" value="1" />
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-4">
+                <div class="d-flex gap-2">
+                    <i class="bi bi-exclamation-triangle-fill fs-5 mt-1 flex-shrink-0"></i>
+                    <div>
+                        <strong>Please fix these errors:</strong>
+                        <ul class="mb-0 mt-1 ps-3 small">
+                            @foreach (var ms in ViewData.ModelState.Values)
+                            {
+                                foreach (var err in ms.Errors)
+                                {
+                                    <li>@err.ErrorMessage</li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- STEP 1: Legal -->
+        <div class="form-panel active" id="panel1">
+            <div class="sec-head">
+                <div class="sec-icon"><i class="bi bi-building-fill"></i></div>
+                <div><h5>Legal Information</h5><p>Official business / entity details</p></div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="LegalName" class="form-label fw-semibold small">Legal Name <span class="text-danger">*</span></label>
+                    <input asp-for="LegalName" class="form-control" placeholder="As per PAN card" />
+                    <span asp-validation-for="LegalName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TradeName" class="form-label fw-semibold small">Trade Name</label>
+                    <input asp-for="TradeName" class="form-control" placeholder="If different from legal name" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="VendorType" class="form-label fw-semibold small">Vendor Type <span class="text-danger">*</span></label>
+                    <select asp-for="VendorType" class="form-select">
+                        <option value="">— Select —</option>
+                        <option value="Goods">Goods</option>
+                        <option value="Service">Service</option>
+                        <option value="Both">Both</option>
+                    </select>
+                    <span asp-validation-for="VendorType" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="VendorCategory" class="form-label fw-semibold small">Category <span class="text-danger">*</span></label>
+                    <select asp-for="VendorCategory" class="form-select">
+                        <option value="">— Select —</option>
+                        <option value="Domestic">Domestic</option>
+                        <option value="Foreign">Foreign</option>
+                        <option value="Govt">Government</option>
+                        <option value="Intercompany">Intercompany</option>
+                    </select>
+                    <span asp-validation-for="VendorCategory" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Constitution" class="form-label fw-semibold small">Constitution <span class="text-danger">*</span></label>
+                    <select asp-for="Constitution" class="form-select" id="Constitution">
+                        <option value="">— Select —</option>
+                        <option value="Proprietorship">Proprietorship</option>
+                        <option value="Partnership">Partnership</option>
+                        <option value="Pvt Ltd">Private Limited</option>
+                        <option value="Public Ltd">Public Limited</option>
+                        <option value="LLP">LLP</option>
+                    </select>
+                    <span asp-validation-for="Constitution" class="text-danger small"></span>
+                </div>
+                <div class="col-12" id="incorporationDiv" style="display:none;">
+                    <div class="reveal-box">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="DateOfIncorporation" class="form-label fw-semibold small">Incorporation Date</label>
+                                <input asp-for="DateOfIncorporation" class="form-control" type="date" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="CIN" class="form-label fw-semibold small">CIN Number</label>
+                                <input asp-for="CIN" class="form-control" placeholder="Corporate Identity Number" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: PAN -->
+        <div class="form-panel" id="panel2">
+            <div class="sec-head">
+                <div class="sec-icon" style="background:var(--brand-warning-bg);color:var(--brand-warning);border-color:var(--brand-warning-border);"><i class="bi bi-credit-card-fill"></i></div>
+                <div><h5>PAN Details</h5><p>Permanent Account Number for tax identification</p></div>
+            </div>
+            <div class="alert alert-info small mb-3">
+                <i class="bi bi-info-circle me-1"></i> Enter PAN exactly as it appears on your PAN card.
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="PAN" class="form-label fw-semibold small">PAN Number <span class="text-danger">*</span></label>
+                    <input asp-for="PAN" class="form-control" placeholder="ABCDE1234F" style="text-transform:uppercase;letter-spacing:.08em;" />
+                    <span asp-validation-for="PAN" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PANCopy" class="form-label fw-semibold small">PAN Copy <span class="text-danger">*</span></label>
+                    <input asp-for="PANCopy" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                    <div class="text-muted" style="font-size:.73rem;margin-top:.2rem;"><i class="bi bi-paperclip"></i> PDF, JPG or PNG &middot; Max 2 MB</div>
+                    <span asp-validation-for="PANCopy" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: GST -->
+        <div class="form-panel" id="panel3">
+            <div class="sec-head">
+                <div class="sec-icon" style="background:var(--brand-success-bg);color:var(--brand-success);border-color:var(--brand-success-border);"><i class="bi bi-truck"></i></div>
+                <div><h5>GST Details</h5><p>Goods and Services Tax registration</p></div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="GSTRegistered" class="form-label fw-semibold small">GST Registered? <span class="text-danger">*</span></label>
+                    <select asp-for="GSTRegistered" class="form-select" id="GSTRegistered">
+                        <option value="">— Select —</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                    <span asp-validation-for="GSTRegistered" class="text-danger small"></span>
+                </div>
+            </div>
+            <div id="gstFields" style="display:none;">
+                <div class="reveal-box">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="GSTIN" class="form-label fw-semibold small">GSTIN</label>
+                            <input asp-for="GSTIN" class="form-control" placeholder="22AAAAA0000A1Z5" style="text-transform:uppercase;" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="GSTCertificate" class="form-label fw-semibold small">GST Certificate</label>
+                            <input asp-for="GSTCertificate" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 4: MSME -->
+        <div class="form-panel" id="panel4">
+            <div class="sec-head">
+                <div class="sec-icon" style="background:var(--brand-info-bg);color:var(--brand-info);border-color:var(--brand-info-border);"><i class="bi bi-award-fill"></i></div>
+                <div><h5>MSME Details</h5><p>Micro, Small and Medium Enterprise registration</p></div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="MSMERegistered" class="form-label fw-semibold small">MSME Registered? <span class="text-danger">*</span></label>
+                    <select asp-for="MSMERegistered" class="form-select" id="MSMERegistered">
+                        <option value="">— Select —</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                    <span asp-validation-for="MSMERegistered" class="text-danger small"></span>
+                </div>
+            </div>
+            <div id="msmeFields" style="display:none;">
+                <div class="reveal-box">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="UdyamNumber" class="form-label fw-semibold small">Udyam Registration Number</label>
+                            <input asp-for="UdyamNumber" class="form-control" placeholder="UDYAM-XX-00-0000000" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 5: TDS -->
+        <div class="form-panel" id="panel5">
+            <div class="sec-head">
+                <div class="sec-icon"><i class="bi bi-percent"></i></div>
+                <div><h5>TDS Details</h5><p>Tax Deducted at Source applicability</p></div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="TDSApplicable" class="form-label fw-semibold small">TDS Applicable? <span class="text-danger">*</span></label>
+                    <select asp-for="TDSApplicable" class="form-select" id="TDSApplicable">
+                        <option value="">— Select —</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                    <span asp-validation-for="TDSApplicable" class="text-danger small"></span>
+                </div>
+            </div>
+            <div id="tdsFields" style="display:none;">
+                <div class="reveal-box">
+                    <p class="fw-semibold small mb-2">Select Applicable TDS Sections:</p>
+                    <div class="row g-2">
+                        <div class="col-md-4 col-6">
+                            <label class="tds-card d-flex align-items-center gap-2 w-100">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" name="SelectedTDSSections" value="194C" id="tds194C">
+                                <div><div class="fw-bold small">194C</div><div class="text-muted" style="font-size:.72rem;">Contractors</div></div>
+                            </label>
+                        </div>
+                        <div class="col-md-4 col-6">
+                            <label class="tds-card d-flex align-items-center gap-2 w-100">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" name="SelectedTDSSections" value="194J" id="tds194J">
+                                <div><div class="fw-bold small">194J</div><div class="text-muted" style="font-size:.72rem;">Professional fees</div></div>
+                            </label>
+                        </div>
+                        <div class="col-md-4 col-6">
+                            <label class="tds-card d-flex align-items-center gap-2 w-100">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" name="SelectedTDSSections" value="194H" id="tds194H">
+                                <div><div class="fw-bold small">194H</div><div class="text-muted" style="font-size:.72rem;">Commission / Brokerage</div></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 6: Bank -->
+        <div class="form-panel" id="panel6">
+            <div class="sec-head">
+                <div class="sec-icon"><i class="bi bi-bank2"></i></div>
+                <div><h5>Bank Details</h5><p>Payment account for settlements</p></div>
+            </div>
+            <div class="alert alert-info small mb-3">
+                <i class="bi bi-lock-fill me-1"></i> Your bank details are encrypted and stored securely.
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="AccountHolderName" class="form-label fw-semibold small">Account Holder <span class="text-danger">*</span></label>
+                    <input asp-for="AccountHolderName" class="form-control" placeholder="As per bank records" />
+                    <span asp-validation-for="AccountHolderName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="BankName" class="form-label fw-semibold small">Bank Name <span class="text-danger">*</span></label>
+                    <input asp-for="BankName" class="form-control" placeholder="e.g. State Bank of India" />
+                    <span asp-validation-for="BankName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="AccountNumber" class="form-label fw-semibold small">Account Number <span class="text-danger">*</span></label>
+                    <input asp-for="AccountNumber" class="form-control" />
+                    <span asp-validation-for="AccountNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="IFSC" class="form-label fw-semibold small">IFSC Code <span class="text-danger">*</span></label>
+                    <input asp-for="IFSC" class="form-control" style="text-transform:uppercase;" placeholder="e.g. SBIN0001234" />
+                    <span asp-validation-for="IFSC" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="CancelledCheque" class="form-label fw-semibold small">Cancelled Cheque <span class="text-danger">*</span></label>
+                    <input asp-for="CancelledCheque" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                    <div class="text-muted" style="font-size:.73rem;margin-top:.2rem;"><i class="bi bi-paperclip"></i> PDF, JPG or PNG &middot; Max 2 MB</div>
+                    <span asp-validation-for="CancelledCheque" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 7: Address -->
+        <div class="form-panel" id="panel7">
+            <div class="sec-head">
+                <div class="sec-icon" style="background:var(--brand-warning-bg);color:var(--brand-warning);border-color:var(--brand-warning-border);"><i class="bi bi-geo-alt-fill"></i></div>
+                <div><h5>Address Details</h5><p>Registered / principal place of business</p></div>
+            </div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="AddressLine1" class="form-label fw-semibold small">Address Line 1 <span class="text-danger">*</span></label>
+                    <input asp-for="AddressLine1" class="form-control" placeholder="Building / Flat / Plot number" />
+                    <span asp-validation-for="AddressLine1" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="AddressLine2" class="form-label fw-semibold small">Address Line 2</label>
+                    <input asp-for="AddressLine2" class="form-control" placeholder="Street / Area / Locality" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="City" class="form-label fw-semibold small">City <span class="text-danger">*</span></label>
+                    <input asp-for="City" class="form-control" />
+                    <span asp-validation-for="City" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="State" class="form-label fw-semibold small">State <span class="text-danger">*</span></label>
+                    <input asp-for="State" class="form-control" />
+                    <span asp-validation-for="State" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="PINCode" class="form-label fw-semibold small">PIN Code <span class="text-danger">*</span></label>
+                    <input asp-for="PINCode" class="form-control" placeholder="6-digit PIN" />
+                    <span asp-validation-for="PINCode" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Country" class="form-label fw-semibold small">Country <span class="text-danger">*</span></label>
+                    <input asp-for="Country" class="form-control" value="India" />
+                    <span asp-validation-for="Country" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 8: Contact -->
+        <div class="form-panel" id="panel8">
+            <div class="sec-head">
+                <div class="sec-icon" style="background:var(--brand-success-bg);color:var(--brand-success);border-color:var(--brand-success-border);"><i class="bi bi-person-fill-check"></i></div>
+                <div><h5>Contact Information</h5><p>Primary contact for vendor communications</p></div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="PrimaryContactName" class="form-label fw-semibold small">Contact Person <span class="text-danger">*</span></label>
+                    <input asp-for="PrimaryContactName" class="form-control" />
+                    <span asp-validation-for="PrimaryContactName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Designation" class="form-label fw-semibold small">Designation</label>
+                    <input asp-for="Designation" class="form-control" placeholder="e.g. Director, Manager" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="MobileNumber" class="form-label fw-semibold small">Mobile Number <span class="text-danger">*</span></label>
+                    <input asp-for="MobileNumber" class="form-control" placeholder="10-digit number" />
+                    <span asp-validation-for="MobileNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
+                    <input asp-for="Email" class="form-control" type="email" placeholder="contact@company.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="AadharNumber" class="form-label fw-semibold small">Aadhar Number</label>
+                    <input asp-for="AadharNumber" class="form-control" placeholder="12-digit Aadhar" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="AadharCopy" class="form-label fw-semibold small">Aadhar Copy</label>
+                    <input asp-for="AadharCopy" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+            </div>
+            <div class="alert alert-success mt-4 small d-flex gap-2 align-items-start">
+                <i class="bi bi-check-circle-fill fs-5 flex-shrink-0 mt-1"></i>
+                <div>
+                    <strong class="d-block">Almost done!</strong>
+                    Review all information before submitting. Your registration will be reviewed within 2-3 business days.
+                </div>
+            </div>
+        </div>
+
+        <!-- Nav footer -->
+        <div class="nav-footer">
+            <button type="button" class="btn btn-outline-secondary px-4" id="prevBtn" disabled>
+                <i class="bi bi-arrow-left me-1"></i> Previous
+            </button>
+            <span class="text-muted small" id="stepCounter">1 / 8</span>
+            <div>
+                <button type="button" class="btn btn-primary px-4" id="nextBtn">
+                    Next <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+                <button type="submit" class="btn btn-success px-4 d-none" id="submitBtn">
+                    <i class="bi bi-check-circle me-1"></i> Submit Registration
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+$(document).ready(function () {
+    var current = 1;
+    var total = 8;
+
+    // Store original icons from each step circle
+    var icons = [];
+    $('#stepperEl .step-item').each(function () {
+        icons.push($(this).find('.step-circle').html());
+    });
+
+    function goTo(step) {
+        // Hide old panel, show new
+        $('#panel' + current).removeClass('active').hide();
+        current = step;
+        $('#panel' + current).addClass('active').show();
+        $('#currentStep').val(current);
+
+        // Progress = 0 on step 1, increases as you move forward
+        // Formula: (step - 1) / total * 100
+        var pct = Math.round(((current - 1) / total) * 100);
+        $('#progressBar').css('width', pct + '%');
+        $('#stepText').text('Step ' + current + ' of ' + total);
+        $('#progressPercent').text(pct + '% Complete');
+        $('#stepCounter').text(current + ' / ' + total);
+
+        // Update stepper visuals
+        $('#stepperEl .step-item').each(function () {
+            var s = parseInt($(this).data('step'));
+            $(this).removeClass('active done');
+            if (s === current) {
+                $(this).addClass('active');
+                $(this).find('.step-circle').html(icons[s - 1]);
+            } else if (s < current) {
+                $(this).addClass('done');
+                $(this).find('.step-circle').html('<i class="bi bi-check-lg"></i>');
+            } else {
+                $(this).find('.step-circle').html(icons[s - 1]);
+            }
+        });
+
+        // Prev / Next / Submit buttons
+        $('#prevBtn').prop('disabled', current === 1);
+        if (current === total) {
+            $('#nextBtn').addClass('d-none');
+            $('#submitBtn').removeClass('d-none');
+        } else {
+            $('#nextBtn').removeClass('d-none');
+            $('#submitBtn').addClass('d-none');
+        }
+
+        $('html,body').animate({ scrollTop: 0 }, 200);
+    }
+
+    // Next button
+    $('#nextBtn').on('click', function () {
+        if (current < total) goTo(current + 1);
+    });
+
+    // Prev button
+    $('#prevBtn').on('click', function () {
+        if (current > 1) goTo(current - 1);
+    });
+
+    // Stepper circle click
+    $('#stepperEl .step-item').on('click', function () {
+        var s = parseInt($(this).data('step'));
+        if (s !== current) goTo(s);
+    });
+
+    // Conditional fields
+    $('#Constitution').on('change', function () {
+        ['Pvt Ltd', 'Public Ltd', 'LLP'].indexOf($(this).val()) > -1
+            ? $('#incorporationDiv').slideDown(200)
+            : $('#incorporationDiv').slideUp(200);
+    });
+    $('#GSTRegistered').on('change', function () {
+        $(this).val() === 'Yes' ? $('#gstFields').slideDown(200) : $('#gstFields').slideUp(200);
+    });
+    $('#MSMERegistered').on('change', function () {
+        $(this).val() === 'Yes' ? $('#msmeFields').slideDown(200) : $('#msmeFields').slideUp(200);
+    });
+    $('#TDSApplicable').on('change', function () {
+        $(this).val() === 'Yes' ? $('#tdsFields').slideDown(200) : $('#tdsFields').slideUp(200);
+    });
+
+    // Auto-uppercase
+    $('input[style*="uppercase"]').on('input', function () {
+        var p = this.selectionStart;
+        this.value = this.value.toUpperCase();
+        this.setSelectionRange(p, p);
+    });
+
+    // Initialise
+    goTo(1);
+});
+</script>
+}

@@ -1,0 +1,63 @@
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<div class="auth-bg" style="min-height:calc(100vh - 80px);">
+    <div class="container text-center" style="max-width:780px;">
+
+        <span class="status-chip chip-new mb-3">
+            <i class="bi bi-shield-check"></i> Vendor Onboarding Portal
+        </span>
+
+        <h1 class="ds-h" style="font-size:3rem;line-height:1.05;margin-bottom:.75rem;">
+            Streamlined Vendor <em style="font-style:italic;color:var(--brand-accent);font-weight:400;">Onboarding</em>
+        </h1>
+
+        <p class="lead text-muted mx-auto mb-4" style="max-width:560px;font-size:1.05rem;">
+            A modern, secure platform for vendor registration, document management, and approval workflows — built for scale.
+        </p>
+
+        <div class="d-flex justify-content-center gap-2 flex-wrap mb-5">
+            <a href="/Vendor/Register" class="btn btn-primary btn-lg">
+                <i class="bi bi-person-plus me-1"></i> Register as Vendor
+            </a>
+            <a href="/VendorLogin/Index" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Vendor Login
+            </a>
+        </div>
+
+        <div class="row g-3 mt-4">
+            <div class="col-md-4">
+                <div class="brand-panel h-100" style="padding:1.25rem;">
+                    <div class="d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width:42px;height:42px;border-radius:11px;background:var(--brand-accent-subtle);color:var(--brand-accent);">
+                        <i class="bi bi-shield-lock" style="font-size:1.15rem;"></i>
+                    </div>
+                    <h5 class="ds-h" style="font-size:1.15rem;">Secure</h5>
+                    <p class="small text-muted mb-0">All documents are encrypted and stored securely.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="brand-panel h-100" style="padding:1.25rem;">
+                    <div class="d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width:42px;height:42px;border-radius:11px;background:var(--brand-success-bg);color:var(--brand-success);">
+                        <i class="bi bi-lightning-charge" style="font-size:1.15rem;"></i>
+                    </div>
+                    <h5 class="ds-h" style="font-size:1.15rem;">Fast</h5>
+                    <p class="small text-muted mb-0">8-step guided form. Most registrations under 10 minutes.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="brand-panel h-100" style="padding:1.25rem;">
+                    <div class="d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width:42px;height:42px;border-radius:11px;background:var(--brand-warning-bg);color:var(--brand-warning);">
+                        <i class="bi bi-eye" style="font-size:1.15rem;"></i>
+                    </div>
+                    <h5 class="ds-h" style="font-size:1.15rem;">Transparent</h5>
+                    <p class="small text-muted mb-0">Track your application status and history in one place.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

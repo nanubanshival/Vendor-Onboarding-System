@@ -1,0 +1,58 @@
+@model List<VendorOnboardingSystem.Models.Vendor>
+@{
+    ViewData["Title"] = "Rejected Vendors";
+}
+
+<div class="page-head d-flex justify-content-between align-items-end gap-3">
+    <div>
+        <span class="micro-label d-block mb-1">Vendor Records</span>
+        <h2 class="ds-h" style="font-size:1.85rem;">Rejected <em style="font-style:italic;color:var(--brand-error);font-weight:400;">Vendors</em></h2>
+        <p class="lead">@Model.Count rejected application@(Model.Count == 1 ? "" : "s")</p>
+    </div>
+    <a href="/Admin/Dashboard" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="brand-panel p-0">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="icon-circle"><i class="bi bi-x-circle"></i></div>
+            <h6>No rejected vendors</h6>
+            <p>Rejected applications will appear here.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Legal Name</th>
+                        <th>PAN</th>
+                        <th>Rejection Reason</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var v in Model)
+                {
+                    <tr>
+                        <td class="ds-h" style="font-size:1rem;">@v.LegalName</td>
+                        <td class="font-monospace small">@v.PAN</td>
+                        <td class="text-muted small">@v.RejectionReason</td>
+                        <td><span class="status-chip chip-rej"><i class="bi bi-x-circle"></i>Rejected</span></td>
+                        <td class="text-end">
+                            <a href="/Admin/Details/@v.VendorId" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

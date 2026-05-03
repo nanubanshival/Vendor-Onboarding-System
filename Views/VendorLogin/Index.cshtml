@@ -1,0 +1,59 @@
+@model VendorOnboardingSystem.ViewModels.VendorLoginVM
+@{
+    ViewData["Title"] = "Vendor Login";
+}
+
+<div class="auth-bg">
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <div class="auth-mark"><i class="bi bi-person"></i></div>
+            <h2>Vendor Portal</h2>
+            <p>Sign in to track your application</p>
+        </div>
+
+        <div class="auth-card-body">
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                    <div class="small">@ViewBag.Error</div>
+                </div>
+            }
+
+            <form method="post" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" asp-for="Email" class="form-control" placeholder="you@company.com" required />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" asp-for="Password" class="form-control" placeholder="Enter your password" required />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" asp-for="RememberMe">
+                        <label class="form-check-label small text-muted" asp-for="RememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="small">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Sign in
+                </button>
+            </form>
+
+            <hr class="brand-divider" />
+            <p class="text-center small text-muted mb-0">
+                New vendor?
+                <a href="/Vendor/Register" class="fw-semibold">Register here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

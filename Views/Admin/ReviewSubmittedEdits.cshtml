@@ -1,0 +1,235 @@
+@model VendorOnboardingSystem.Models.Vendor
+
+@{
+    ViewData["Title"] = "Review Submitted Edits";
+    var requestedFields = ViewBag.RequestedFields as string[] ?? new string[0];
+    var editRequest = ViewBag.EditRequest as VendorOnboardingSystem.Models.EditRequest;
+}
+
+<div class="container py-4" style="max-width:1100px;">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3 small">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/Admin/Dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/Admin/PendingEdits">Pending Edits</a></li>
+            <li class="breadcrumb-item active text-muted" aria-current="page">Review Submitted</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-head d-flex justify-content-between align-items-end gap-3">
+        <div>
+            <span class="micro-label d-block mb-1">Vendor Edits</span>
+            <h2 class="ds-h" style="font-size:1.85rem;">Review <em style="font-style:italic;color:var(--brand-accent);font-weight:400;">Submitted Changes</em></h2>
+            <p class="lead">
+                <span class="fw-semibold" style="color:var(--brand-text);">@Model.LegalName</span>
+                · @Model.ReferenceNumber
+                · Submitted @Model.UpdatedAt?.ToString("dd MMM yyyy, hh:mm tt")
+            </p>
+        </div>
+        <span class="status-chip chip-changes"><i class="bi bi-arrow-repeat"></i>Pending Review</span>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-1"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(editRequest?.AdminNotes))
+    {
+        <div class="alert alert-info mb-4">
+            <div class="d-flex gap-2">
+                <i class="bi bi-sticky-fill mt-1"></i>
+                <div>
+                    <strong class="d-block mb-1">Original Admin Notes</strong>
+                    <span class="small">@editRequest.AdminNotes</span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Section title -->
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="d-flex align-items-center justify-content-center" style="width:42px;height:42px;border-radius:11px;background:var(--brand-accent-subtle);border:0.5px solid var(--brand-accent-soft);color:var(--brand-accent);">
+            <i class="bi bi-pencil-square" style="font-size:1.15rem;"></i>
+        </div>
+        <div>
+            <h4 class="ds-h mb-0" style="font-size:1.25rem;">Updated Information</h4>
+            <p class="text-muted small mb-0">Review the values resubmitted by the vendor</p>
+        </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="row g-3 mb-4">
+
+        @if (requestedFields.Contains("PANDetails"))
+        {
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="bi bi-credit-card-2-front me-2" style="color:var(--brand-warning);"></i>PAN Details
+                    </div>
+                    <div class="card-body">
+                        <div class="micro-label">PAN Number</div>
+                        <p class="fw-semibold mb-3 font-monospace">@Model.PAN</p>
+                        @if (!string.IsNullOrEmpty(Model.PANCopyPath))
+                        {
+                            <a href="@Model.PANCopyPath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-earmark-pdf"></i> View Document
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (requestedFields.Contains("GSTDetails"))
+        {
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="bi bi-receipt me-2" style="color:var(--brand-success);"></i>GST Details
+                    </div>
+                    <div class="card-body">
+                        <div class="micro-label">GSTIN</div>
+                        <p class="fw-semibold mb-3 font-monospace">@Model.GSTIN</p>
+                        @if (!string.IsNullOrEmpty(Model.GSTCertificatePath))
+                        {
+                            <a href="@Model.GSTCertificatePath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-earmark-pdf"></i> View Certificate
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (requestedFields.Contains("BankDetails"))
+        {
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="bi bi-bank me-2" style="color:var(--brand-accent);"></i>Bank Details
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <div class="micro-label">Bank Name</div>
+                                <p class="fw-semibold mb-2">@Model.BankName</p>
+                            </div>
+                            <div class="col-6">
+                                <div class="micro-label">Account #</div>
+                                <p class="fw-semibold mb-2 font-monospace">@Model.AccountNumber</p>
+                            </div>
+                            <div class="col-6">
+                                <div class="micro-label">IFSC</div>
+                                <p class="fw-semibold mb-2 font-monospace">@Model.IFSC</p>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.CancelledChequePath))
+                        {
+                            <a href="@Model.CancelledChequePath" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="bi bi-file-earmark-pdf"></i> View Cheque
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (requestedFields.Contains("AddressDetails"))
+        {
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="bi bi-geo-alt me-2" style="color:var(--brand-warning);"></i>Address Details
+                    </div>
+                    <div class="card-body">
+                        <p class="fw-semibold mb-2">@Model.AddressLine1</p>
+                        @if (!string.IsNullOrEmpty(Model.AddressLine2))
+                        {
+                            <p class="fw-semibold mb-2">@Model.AddressLine2</p>
+                        }
+                        <div class="row g-2 small">
+                            <div class="col-4"><div class="micro-label">City</div>@Model.City</div>
+                            <div class="col-4"><div class="micro-label">State</div>@Model.State</div>
+                            <div class="col-4"><div class="micro-label">PIN</div>@Model.PINCode</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (requestedFields.Contains("ContactDetails"))
+        {
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="bi bi-person-lines-fill me-2" style="color:var(--brand-success);"></i>Contact Details
+                    </div>
+                    <div class="card-body">
+                        <div class="micro-label">Primary Contact</div>
+                        <p class="fw-semibold mb-2">@Model.PrimaryContactName</p>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <div class="micro-label">Mobile</div>
+                                <p class="fw-semibold mb-0 font-monospace">@Model.MobileNumber</p>
+                            </div>
+                            <div class="col-6">
+                                <div class="micro-label">Email</div>
+                                <p class="fw-semibold mb-0 small">@Model.Email</p>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.AadharNumber))
+                        {
+                            <div class="micro-label">Aadhar</div>
+                            <p class="fw-semibold mb-2 font-monospace">@Model.AadharNumber</p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.AadharCopyPath))
+                        {
+                            <a href="@Model.AadharCopyPath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-earmark-pdf"></i> View Aadhar
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    <!-- Decision -->
+    <div class="brand-panel">
+        <span class="micro-label d-block mb-3">Your Decision</span>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <form asp-action="ApproveSubmittedEdits" method="post">
+                    <input type="hidden" name="id" value="@Model.VendorId" />
+                    <button type="submit" class="btn btn-success w-100 py-3">
+                        <i class="bi bi-check-circle-fill me-2"></i> Approve Edits
+                        <small class="d-block mt-1 fw-normal" style="opacity:.85">Sends vendor to pending queue for final approval</small>
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <form asp-action="RejectSubmittedEdits" method="post">
+                    <input type="hidden" name="id" value="@Model.VendorId" />
+                    <textarea name="reason" class="form-control mb-2" placeholder="Reason for requesting more changes..." rows="2" required></textarea>
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="bi bi-arrow-clockwise me-2"></i> Request More Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-action="Dashboard" class="btn btn-link text-muted">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+</div>

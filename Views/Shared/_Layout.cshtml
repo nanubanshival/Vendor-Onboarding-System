@@ -1,0 +1,349 @@
+@{
+    var adminUser = Context.Session.GetString("AdminUser");
+    var vendorEmail = Context.Session.GetString("VendorEmail");
+    bool isAdmin = !string.IsNullOrEmpty(adminUser);
+    bool isVendor = !string.IsNullOrEmpty(vendorEmail);
+    bool isSuper = ViewBag.IsSuperAdmin == true;
+    string currentPath = Context.Request.Path.Value?.ToLower() ?? "";
+
+    string NavCls(string match) =>
+        currentPath.StartsWith(match.ToLower()) ? "nav-link active" : "nav-link";
+
+    string Initials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(new[] { ' ', '@', '.' }, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+        return (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpper();
+    }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Vendor Onboarding</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/playfair-display@@5/400.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/playfair-display@@5/500.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/playfair-display@@5/600.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/plus-jakarta-sans@@5/400.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/plus-jakarta-sans@@5/500.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/plus-jakarta-sans@@5/600.css">
+    <link rel="stylesheet" href="~/css/design-system.css" />
+
+    <style>
+        :root {
+            --nav-accent: #4F46E5;
+            --nav-accent-deep: #3730A3;
+            --nav-accent-subtle: #EEF2FF;
+            --nav-accent-soft: #C7D2FE;
+            --nav-text: #0D1424;
+            --nav-text-2: #4B5675;
+            --nav-text-3: #9299B2;
+            --nav-border: #E2E6EE;
+            --nav-error: #DC2626;
+            --nav-error-subtle: #FEF2F2;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            color: var(--nav-text);
+        }
+
+        /* ===== NAVBAR ===== */
+        .app-nav {
+            background: #FFFFFF;
+            border-bottom: 0.5px solid var(--nav-border);
+            padding: .75rem 0;
+            position: sticky; top: 0; z-index: 1030;
+            backdrop-filter: saturate(180%) blur(12px);
+            background: rgba(255,255,255,.92);
+        }
+        .app-nav .container-fluid { max-width: 1320px; }
+
+        .brand {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 500;
+            font-size: 1.35rem;
+            color: var(--nav-text);
+            text-decoration: none;
+            letter-spacing: -.005em;
+            line-height: 1;
+            display: inline-flex; align-items: center; gap: .55rem;
+        }
+        .brand:hover { color: var(--nav-text); }
+        .brand .mark {
+            width: 30px; height: 30px; border-radius: 8px;
+            background: linear-gradient(135deg, #4F46E5, #6366F1);
+            color: #fff; font-size: .9rem; font-weight: 600;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-shadow: 0 .25rem .55rem rgba(79,70,229,.25);
+        }
+        .brand em {
+            font-style: italic; font-weight: 500; color: var(--nav-accent);
+        }
+
+        .nav-row { display: flex; align-items: center; gap: .25rem; }
+        .nav-row .nav-link {
+            position: relative;
+            color: var(--nav-text-2) !important;
+            font-size: .88rem; font-weight: 500;
+            padding: .55rem .95rem !important;
+            border-radius: 8px;
+            transition: .15s ease;
+            display: inline-flex; align-items: center; gap: .4rem;
+        }
+        .nav-row .nav-link:hover {
+            color: var(--nav-accent) !important;
+            background: var(--nav-accent-subtle);
+        }
+        .nav-row .nav-link.active {
+            color: var(--nav-accent) !important;
+            background: var(--nav-accent-subtle);
+            font-weight: 600;
+        }
+        .nav-row .nav-link.active::after {
+            content: ''; position: absolute;
+            left: 50%; bottom: -.55rem; transform: translateX(-50%);
+            width: 22px; height: 2px; border-radius: 2px;
+            background: var(--nav-accent);
+        }
+        .nav-row .nav-link i { font-size: .9rem; }
+
+        .nav-divider {
+            width: 1px; height: 22px; background: var(--nav-border);
+            margin: 0 .5rem;
+        }
+
+        /* User chip */
+        .user-chip {
+            display: inline-flex; align-items: center; gap: .55rem;
+            padding: .35rem .35rem .35rem .85rem;
+            background: #fff;
+            border: 0.5px solid var(--nav-border);
+            border-radius: 999px;
+            color: var(--nav-text);
+            text-decoration: none;
+            font-size: .82rem; font-weight: 500;
+            transition: .15s ease;
+        }
+        .user-chip:hover {
+            border-color: var(--nav-accent-soft);
+            background: var(--nav-accent-subtle);
+            color: var(--nav-accent-deep);
+        }
+        .user-chip .avatar {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: linear-gradient(135deg, #4F46E5, #6366F1);
+            color: #fff;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: .72rem; font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: .02em;
+        }
+        .user-chip .role-tag {
+            font-size: .62rem;
+            background: var(--nav-accent-subtle);
+            color: var(--nav-accent-deep);
+            padding: 1px 7px; border-radius: 999px;
+            letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+        }
+        .user-chip i.bi-chevron-down { font-size: .7rem; color: var(--nav-text-3); margin-right: .25rem; }
+
+        /* Dropdown */
+        .nav-menu {
+            background: #fff;
+            border: 0.5px solid var(--nav-border);
+            border-radius: 12px;
+            box-shadow: 0 .85rem 1.6rem rgba(13,20,36,.08);
+            padding: .5rem;
+            min-width: 220px;
+        }
+        .nav-menu .dropdown-item {
+            border-radius: 8px;
+            padding: .55rem .75rem;
+            font-size: .85rem;
+            color: var(--nav-text-2);
+            display: flex; align-items: center; gap: .55rem;
+            transition: .12s ease;
+        }
+        .nav-menu .dropdown-item:hover {
+            background: var(--nav-accent-subtle);
+            color: var(--nav-accent-deep);
+        }
+        .nav-menu .dropdown-item.danger { color: var(--nav-error); }
+        .nav-menu .dropdown-item.danger:hover { background: var(--nav-error-subtle); color: var(--nav-error); }
+        .nav-menu .dropdown-item i { width: 1rem; font-size: .9rem; }
+        .nav-menu .menu-label {
+            font-size: .65rem; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--nav-text-3); padding: .5rem .75rem .25rem;
+            font-weight: 600;
+        }
+        .nav-menu hr.menu-sep { margin: .35rem 0; border-color: var(--nav-border); opacity: .6; }
+
+        /* CTAs in navbar */
+        .nav-cta {
+            background: var(--nav-accent); color: #fff;
+            border: 0.5px solid var(--nav-accent);
+            padding: .45rem 1rem; border-radius: 8px;
+            font-size: .82rem; font-weight: 500;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: .4rem;
+            transition: .15s ease;
+        }
+        .nav-cta:hover {
+            background: var(--nav-accent-deep); color: #fff;
+            box-shadow: 0 .35rem .8rem rgba(79,70,229,.22);
+        }
+        .nav-cta-ghost {
+            background: transparent; color: var(--nav-accent);
+            border: 0.5px solid var(--nav-accent);
+            padding: .45rem 1rem; border-radius: 8px;
+            font-size: .82rem; font-weight: 500;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: .4rem;
+            transition: .15s ease;
+        }
+        .nav-cta-ghost:hover { background: var(--nav-accent-subtle); }
+
+        /* Mobile toggle */
+        .nav-toggle {
+            border: 0.5px solid var(--nav-border);
+            background: #fff;
+            width: 38px; height: 38px; border-radius: 8px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--nav-text-2);
+        }
+        .nav-toggle:hover { border-color: var(--nav-accent); color: var(--nav-accent); }
+
+        @@media (max-width: 991.98px) {
+            .nav-row { flex-direction: column; align-items: stretch; gap: .25rem; width: 100%; padding-top: .75rem; }
+            .nav-row .nav-link.active::after { display: none; }
+            .nav-divider { display: none; }
+            .user-chip { width: fit-content; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="app-nav navbar navbar-expand-lg">
+    <div class="container-fluid d-flex align-items-center">
+
+        <a class="brand" href="/">
+            <span class="mark">V</span>
+            <span>Vendor <em>Onboarding</em></span>
+        </a>
+
+        <button class="nav-toggle ms-auto d-lg-none" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Toggle navigation">
+            <i class="bi bi-list" style="font-size:1.2rem"></i>
+        </button>
+
+        <div class="collapse navbar-collapse ms-lg-4" id="mainNav">
+            <div class="nav-row">
+
+                @if (isAdmin)
+                {
+                    <a class="@NavCls("/admin/dashboard")" asp-controller="Admin" asp-action="Dashboard">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a class="@NavCls("/admin/pendingedits")" asp-controller="Admin" asp-action="PendingEdits">
+                        <i class="bi bi-pencil-square"></i> Pending Edits
+                    </a>
+                    <a class="@NavCls("/admin/approved")" asp-controller="Admin" asp-action="Approved">
+                        <i class="bi bi-check-circle"></i> Approved
+                    </a>
+                    <a class="@NavCls("/admin/rejected")" asp-controller="Admin" asp-action="Rejected">
+                        <i class="bi bi-x-circle"></i> Rejected
+                    </a>
+                    @if (isSuper)
+                    {
+                        <a class="@NavCls("/admin/pendingsuperadmin")" asp-controller="Admin" asp-action="PendingSuperAdmin">
+                            <i class="bi bi-shield-check"></i> Super Approval
+                        </a>
+                    }
+                }
+
+            </div>
+
+            <div class="nav-row ms-lg-auto">
+                @if (isAdmin)
+                {
+                    <div class="dropdown">
+                        <a href="#" class="user-chip" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar">@Initials(adminUser ?? "")</span>
+                            <span>@adminUser</span>
+                            @if (isSuper)
+                            {
+                                <span class="role-tag">Super</span>
+                            }
+                            <i class="bi bi-chevron-down"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end nav-menu">
+                            <div class="menu-label">Account</div>
+                            <a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                            @if (isSuper)
+                            {
+                                <a class="dropdown-item" asp-controller="Admin" asp-action="ManageAdmins">
+                                    <i class="bi bi-people"></i> Manage Admins
+                                </a>
+                            }
+                            <hr class="menu-sep" />
+                            <a class="dropdown-item danger" asp-controller="Admin" asp-action="Logout">
+                                <i class="bi bi-box-arrow-right"></i> Sign out
+                            </a>
+                        </div>
+                    </div>
+                }
+                else if (isVendor)
+                {
+                    <div class="dropdown">
+                        <a href="#" class="user-chip" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar">@Initials(vendorEmail ?? "")</span>
+                            <span class="d-none d-md-inline">@vendorEmail</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end nav-menu">
+                            <a class="dropdown-item" asp-controller="VendorLogin" asp-action="Status">
+                                <i class="bi bi-file-earmark-text"></i> My Application
+                            </a>
+                            <hr class="menu-sep" />
+                            <a class="dropdown-item danger" asp-controller="VendorLogin" asp-action="Logout">
+                                <i class="bi bi-box-arrow-right"></i> Sign out
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a class="nav-cta-ghost" asp-controller="VendorLogin" asp-action="Index">
+                        <i class="bi bi-person"></i> Vendor Login
+                    </a>
+                    <a class="nav-cta ms-2" asp-controller="Admin" asp-action="Login">
+                        <i class="bi bi-shield-lock"></i> Admin Login
+                    </a>
+                }
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+<!-- PAGE CONTENT -->
+<div class="container mt-4">
+    @RenderBody()
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

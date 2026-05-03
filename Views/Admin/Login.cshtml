@@ -1,0 +1,67 @@
+@{
+    ViewData["Title"] = "Admin Login";
+    Layout = "_Layout";
+}
+
+<div class="auth-bg">
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <div class="auth-mark"><i class="bi bi-shield-lock"></i></div>
+            <h2>Admin Sign In</h2>
+            <p>Vendor Onboarding · Secure access</p>
+        </div>
+
+        <div class="auth-card-body">
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                    <div class="small">@ViewBag.Error</div>
+                </div>
+            }
+
+            <form method="post" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter your username" required autofocus />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter your password" required />
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                        <label class="form-check-label small text-muted" for="rememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="small">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Sign in
+                </button>
+            </form>
+
+            <hr class="brand-divider" />
+            <p class="text-center small text-muted mb-0">
+                <i class="bi bi-shield-check me-1"></i>
+                Authorized access only
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+    (function () {
+        const forms = document.querySelectorAll('.needs-validation');
+        forms.forEach(form => {
+            form.addEventListener('submit', e => {
+                if (!form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
+                form.classList.add('was-validated');
+            });
+        });
+    })();
+    </script>
+}

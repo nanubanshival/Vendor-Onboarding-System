@@ -1,0 +1,80 @@
+@model VendorOnboardingSystem.ViewModels.InvitationVM
+@{
+    ViewData["Title"] = "Invite Vendor";
+}
+
+<div class="container py-4" style="max-width:800px;">
+    <div class="page-head d-flex justify-content-between align-items-end gap-3">
+        <div>
+            <span class="micro-label d-block mb-1">New Vendor</span>
+            <h2 class="ds-h" style="font-size:1.85rem;">Send <em style="font-style:italic;color:var(--brand-accent);font-weight:400;">Invitation</em></h2>
+            <p class="lead">Email a registration link to a prospective vendor</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/Admin/Invitations" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ul"></i> All Invitations</a>
+            <a href="/Admin/Dashboard" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+        </div>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-1"></i> @ViewBag.Message
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Error:</strong> @ViewBag.Error
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="brand-panel">
+                <form asp-action="InviteVendor" method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email Address</label>
+                        <input asp-for="Email" class="form-control" type="email" placeholder="vendor@company.com" required />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                        <small class="text-muted d-block mt-1">The invitation link will be sent to this email.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CompanyName" class="form-label">Company Name <span class="text-muted">(optional)</span></label>
+                        <input asp-for="CompanyName" class="form-control" placeholder="Acme Technologies Pvt. Ltd." />
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-envelope me-1"></i> Send Invitation
+                        </button>
+                        <a asp-action="Dashboard" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="brand-panel" style="background:var(--brand-accent-subtle);border-color:var(--brand-accent-soft);">
+                <span class="micro-label d-block mb-2">How it works</span>
+                <ol class="mb-0 small ps-3" style="line-height:1.9;">
+                    <li>Enter the vendor's email and click <strong>Send Invitation</strong></li>
+                    <li>System generates a unique registration link (valid for 7 days)</li>
+                    <li>Vendor receives email with the registration link</li>
+                    <li>Vendor clicks link and completes the registration form</li>
+                    <li>Registration is saved to your local database for review</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

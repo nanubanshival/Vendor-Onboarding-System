@@ -1,0 +1,417 @@
+﻿@model VendorOnboardingSystem.ViewModels.VendorEditVM
+
+@{
+    ViewData["Title"] = "Update Your Information";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="page-head d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center" style="width:48px;height:48px;border-radius:12px;background:var(--brand-warning-bg);border:0.5px solid var(--brand-warning-border);color:var(--brand-warning);">
+                    <i class="bi bi-pencil-square" style="font-size:1.3rem;"></i>
+                </div>
+                <div>
+                    <h2 class="ds-h" style="font-size:1.6rem;">Update Requested <em style="font-style:italic;color:var(--brand-accent);font-weight:400;">Information</em></h2>
+                    <p class="lead">Admin has asked you to revise specific sections. Update only what's shown below.</p>
+                </div>
+            </div>
+            <div class="brand-panel">
+
+                    @if (!string.IsNullOrEmpty(Model.AdminNotes))
+                    {
+                        <div class="alert alert-info">
+                            <strong>Note from Admin:</strong><br />
+                            @Model.AdminNotes
+                        </div>
+                    }
+
+                    <form asp-action="EditRequest" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="EditRequestId" />
+
+                        <p class="text-muted mb-4">
+                            Please update only the fields shown below. Other information is correct.
+                        </p>
+
+                        <!-- PAN DETAILS SECTION -->
+                        @if (Model.ShowPANDetails)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header" style="background:var(--brand-warning-bg);color:var(--brand-warning-text);border-bottom-color:var(--brand-warning-border);">
+                                    <strong><i class="bi bi-credit-card"></i> PAN Details</strong>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(Model.PANDetailsComment))
+                                    {
+                                        <div class="alert alert-info mb-3">
+                                            <small><strong>Admin comment:</strong> @Model.PANDetailsComment</small>
+                                        </div>
+                                    }
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Current PAN Number</label>
+                                        <input type="text" class="form-control" value="@Model.PAN" readonly />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">New PAN Number</label>
+                                        <input asp-for="PAN" class="form-control" placeholder="Enter correct PAN" />
+                                        <span asp-validation-for="PAN" class="text-danger"></span>
+                                    </div>
+
+                                    <!-- PAN Document Upload -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">PAN Document</label>
+                                        @if (!string.IsNullOrEmpty(Model.ExistingPANCopyPath))
+                                        {
+                                            <div class="mb-2">
+                                                <small class="text-muted">Current file:</small>
+                                                <a href="@Model.ExistingPANCopyPath" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                            </div>
+                                        }
+                                        <input asp-for="NewPANCopy" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                        <small class="text-muted">Upload new PAN document if needed</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- GST DETAILS SECTION -->
+                        @if (Model.ShowGSTDetails)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header" style="background:var(--brand-warning-bg);color:var(--brand-warning-text);border-bottom-color:var(--brand-warning-border);">
+                                    <strong><i class="bi bi-truck"></i> GST Details</strong>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(Model.GSTDetailsComment))
+                                    {
+                                        <div class="alert alert-info mb-3">
+                                            <small><strong>Admin comment:</strong> @Model.GSTDetailsComment</small>
+                                        </div>
+                                    }
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Current GSTIN</label>
+                                        <input type="text" class="form-control" value="@Model.GSTIN" readonly />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">New GSTIN</label>
+                                        <input asp-for="GSTIN" class="form-control" placeholder="Enter correct GSTIN" />
+                                    </div>
+
+                                    <!-- GST Certificate Upload -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">GST Certificate</label>
+                                        @if (!string.IsNullOrEmpty(Model.ExistingGSTCertificatePath))
+                                        {
+                                            <div class="mb-2">
+                                                <small class="text-muted">Current file:</small>
+                                                <a href="@Model.ExistingGSTCertificatePath" target="_blank" class="btn btn-sm btn-outline-success ms-2">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                            </div>
+                                        }
+                                        <input asp-for="NewGSTCertificate" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                        <small class="text-muted">Upload new GST certificate if needed</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- BANK DETAILS SECTION -->
+                        @if (Model.ShowBankDetails)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header" style="background:var(--brand-warning-bg);color:var(--brand-warning-text);border-bottom-color:var(--brand-warning-border);">
+                                    <strong><i class="bi bi-bank"></i> Bank Details</strong>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(Model.BankDetailsComment))
+                                    {
+                                        <div class="alert alert-info mb-3">
+                                            <small><strong>Admin comment:</strong> @Model.BankDetailsComment</small>
+                                        </div>
+                                    }
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Current Bank Name</label>
+                                            <input type="text" class="form-control" value="@Model.BankName" readonly />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">New Bank Name</label>
+                                            <input asp-for="BankName" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Current Account Number</label>
+                                            <input type="text" class="form-control" value="@Model.AccountNumber" readonly />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">New Account Number</label>
+                                            <input asp-for="AccountNumber" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Current IFSC Code</label>
+                                            <input type="text" class="form-control" value="@Model.IFSC" readonly />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">New IFSC Code</label>
+                                            <input asp-for="IFSC" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <!-- Cancelled Cheque Upload -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Cancelled Cheque</label>
+                                        @if (!string.IsNullOrEmpty(Model.ExistingCancelledChequePath))
+                                        {
+                                            <div class="mb-2">
+                                                <small class="text-muted">Current file:</small>
+                                                <a href="@Model.ExistingCancelledChequePath" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                            </div>
+                                        }
+                                        <input asp-for="NewCancelledCheque" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                        <small class="text-muted">Upload new cancelled cheque if needed</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- ADDRESS DETAILS SECTION -->
+                        @if (Model.ShowAddressDetails)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header" style="background:var(--brand-warning-bg);color:var(--brand-warning-text);border-bottom-color:var(--brand-warning-border);">
+                                    <strong><i class="bi bi-geo-alt"></i> Address Details</strong>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(Model.AddressDetailsComment))
+                                    {
+                                        <div class="alert alert-info mb-3">
+                                            <small><strong>Admin comment:</strong> @Model.AddressDetailsComment</small>
+                                        </div>
+                                    }
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Address</label>
+                                        <textarea class="form-control" rows="2" readonly>@Model.AddressLine1, @Model.AddressLine2, @Model.City, @Model.State - @Model.PINCode</textarea>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <label class="form-label fw-bold">Address Line 1</label>
+                                            <input asp-for="AddressLine1" class="form-control" />
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <label class="form-label fw-bold">Address Line 2</label>
+                                            <input asp-for="AddressLine2" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <label class="form-label fw-bold">City</label>
+                                            <input asp-for="City" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <label class="form-label fw-bold">State</label>
+                                            <input asp-for="State" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <label class="form-label fw-bold">PIN Code</label>
+                                            <input asp-for="PINCode" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- CONTACT DETAILS SECTION -->
+                        @if (Model.ShowContactDetails)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header" style="background:var(--brand-warning-bg);color:var(--brand-warning-text);border-bottom-color:var(--brand-warning-border);">
+                                    <strong><i class="bi bi-person"></i> Contact Information</strong>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(Model.ContactDetailsComment))
+                                    {
+                                        <div class="alert alert-info mb-3">
+                                            <small><strong>Admin comment:</strong> @Model.ContactDetailsComment</small>
+                                        </div>
+                                    }
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Current Primary Contact</label>
+                                            <input type="text" class="form-control" value="@Model.PrimaryContactName" readonly />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">New Primary Contact</label>
+                                            <input asp-for="PrimaryContactName" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Current Mobile</label>
+                                            <input type="text" class="form-control" value="@Model.MobileNumber" readonly />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">New Mobile</label>
+                                            <input asp-for="MobileNumber" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Current Email</label>
+                                            <input type="text" class="form-control" value="@Model.Email" readonly />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">New Email</label>
+                                            <input asp-for="Email" class="form-control" type="email" />
+                                        </div>
+                                    </div>
+
+                                    <!-- Aadhar Upload -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Aadhar Card</label>
+                                        @if (!string.IsNullOrEmpty(Model.ExistingAadharCopyPath))
+                                        {
+                                            <div class="mb-2">
+                                                <small class="text-muted">Current file:</small>
+                                                <a href="@Model.ExistingAadharCopyPath" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                            </div>
+                                        }
+                                        <input asp-for="NewAadharCopy" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                        <small class="text-muted">Upload new Aadhar if needed</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- LEGAL INFORMATION SECTION -->
+                        @if (Model.ShowLegalInfo)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header" style="background:var(--brand-warning-bg);color:var(--brand-warning-text);border-bottom-color:var(--brand-warning-border);">
+                                    <strong><i class="bi bi-building"></i> Legal Information</strong>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(Model.LegalInfoComment))
+                                    {
+                                        <div class="alert alert-info mb-3">
+                                            <small><strong>Admin comment:</strong> @Model.LegalInfoComment</small>
+                                        </div>
+                                    }
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Current Legal Name</label>
+                                            <input type="text" class="form-control" value="@Model.LegalName" readonly />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">New Legal Name</label>
+                                            <input asp-for="LegalName" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- MSME DETAILS SECTION -->
+                        @if (Model.ShowMSMEDetails)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header" style="background:var(--brand-warning-bg);color:var(--brand-warning-text);border-bottom-color:var(--brand-warning-border);">
+                                    <strong><i class="bi bi-building"></i> MSME Details</strong>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(Model.MSMEDetailsComment))
+                                    {
+                                        <div class="alert alert-info mb-3">
+                                            <small><strong>Admin comment:</strong> @Model.MSMEDetailsComment</small>
+                                        </div>
+                                    }
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Current Udyam Number</label>
+                                            <input type="text" class="form-control" value="@Model.UdyamNumber" readonly />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">New Udyam Number</label>
+                                            <input asp-for="UdyamNumber" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- TDS DETAILS SECTION -->
+                        @if (Model.ShowTDSDetails)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header" style="background:var(--brand-warning-bg);color:var(--brand-warning-text);border-bottom-color:var(--brand-warning-border);">
+                                    <strong><i class="bi bi-percent"></i> TDS Details</strong>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(Model.TDSDetailsComment))
+                                    {
+                                        <div class="alert alert-info mb-3">
+                                            <small><strong>Admin comment:</strong> @Model.TDSDetailsComment</small>
+                                        </div>
+                                    }
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Current TDS Sections</label>
+                                            <input type="text" class="form-control" value="@Model.TDSSections" readonly />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">New TDS Sections</label>
+                                            <input asp-for="TDSSections" class="form-control" placeholder="Comma separated" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- If no sections to show -->
+                        @if (!Model.ShowPANDetails && !Model.ShowGSTDetails && !Model.ShowBankDetails &&
+                                                !Model.ShowAddressDetails && !Model.ShowContactDetails && !Model.ShowLegalInfo &&
+                                                !Model.ShowMSMEDetails && !Model.ShowTDSDetails)
+                        {
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                No changes have been requested for this vendor.
+                            </div>
+                        }
+
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a href="/VendorLogin/Status" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send-check me-1"></i> Submit Updates
+                            </button>
+                        </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

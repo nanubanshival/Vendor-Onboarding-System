@@ -1,0 +1,64 @@
+@model List<VendorOnboardingSystem.Models.Vendor>
+@{
+    ViewData["Title"] = "Super Admin Approval";
+}
+
+<div class="page-head d-flex justify-content-between align-items-end gap-3">
+    <div>
+        <span class="micro-label d-block mb-1">Final Approval Queue</span>
+        <h2 class="ds-h" style="font-size:1.85rem;">Awaiting <em style="font-style:italic;color:var(--brand-accent);font-weight:400;">Super Admin</em></h2>
+        <p class="lead">@Model.Count vendor@(Model.Count == 1 ? "" : "s") pending final approval</p>
+    </div>
+    <a href="/Admin/Dashboard" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="brand-panel p-0">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="icon-circle"><i class="bi bi-shield-check"></i></div>
+            <h6>Nothing pending</h6>
+            <p>No vendors awaiting super admin approval.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Legal Name</th>
+                        <th>PAN</th>
+                        <th>Reference</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var v in Model)
+                {
+                    <tr>
+                        <td class="ds-h" style="font-size:1rem;">@v.LegalName</td>
+                        <td class="font-monospace small">@v.PAN</td>
+                        <td class="small text-muted">@v.ReferenceNumber</td>
+                        <td class="small">@v.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            @if (v.Status == "PendingSuperAdmin") { <span class="status-chip chip-new"><i class="bi bi-shield-check"></i>Pending Super Admin</span> }
+                            else if (v.Status == "Approved") { <span class="status-chip chip-ok"><i class="bi bi-check-circle"></i>Approved</span> }
+                            else { <span class="badge bg-secondary">@v.Status</span> }
+                        </td>
+                        <td class="text-end">
+                            <a href="/Admin/Details/@v.VendorId" class="btn btn-sm btn-primary">
+                                <i class="bi bi-eye"></i> Review
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

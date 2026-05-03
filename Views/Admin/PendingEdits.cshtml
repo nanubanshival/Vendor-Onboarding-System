@@ -1,0 +1,114 @@
+@model List<VendorOnboardingSystem.Models.Vendor>
+@using VendorOnboardingSystem.Data
+@inject ApplicationDbContext _context
+
+@{
+    ViewData["Title"] = "Pending Edit Requests";
+
+    string Initials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+        return (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpper();
+    }
+}
+
+<div class="container py-4">
+    <div class="page-head d-flex justify-content-between align-items-end gap-3">
+        <div>
+            <span class="micro-label d-block mb-1">Edit Requests</span>
+            <h2 class="ds-h" style="font-size:1.85rem;">Pending <em style="font-style:italic;color:var(--brand-accent);font-weight:400;">Vendor Edits</em></h2>
+            <p class="lead">@Model.Count vendor@(Model.Count == 1 ? "" : "s") need to respond to your requests</p>
+        </div>
+        <a href="/Admin/Dashboard" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="brand-panel">
+            <div class="empty-state">
+                <div class="icon-circle"><i class="bi bi-pencil-square"></i></div>
+                <h6>No pending edit requests</h6>
+                <p>When you request changes from a vendor, they'll appear here until they respond.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+        @foreach (var v in Model)
+        {
+            var editRequest = _context.EditRequests
+                .Where(r => r.VendorId == v.VendorId && r.Status == "Pending")
+                .OrderByDescending(r => r.RequestDate)
+                .FirstOrDefault();
+
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="brand-avatar">@Initials(v.LegalName)</div>
+                            <div class="flex-grow-1 min-w-0">
+                                <h5 class="ds-h mb-0 text-truncate" style="font-size:1.15rem;">@v.LegalName</h5>
+                                <div class="small text-muted">@v.ReferenceNumber</div>
+                            </div>
+                            <span class="status-chip chip-pending"><i class="bi bi-hourglass-split"></i>Pending</span>
+                        </div>
+
+                        <div class="row g-2 small mb-3">
+                            <div class="col-6">
+                                <div class="micro-label">Requested</div>
+                                <div>@(editRequest?.RequestDate.ToString("dd MMM yyyy, hh:mm tt") ?? "-")</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="micro-label">Request ID</div>
+                                <div>#@(editRequest?.Id ?? 0)</div>
+                            </div>
+                        </div>
+
+                        @if (editRequest != null && !string.IsNullOrEmpty(editRequest.AdminNotes))
+                        {
+                            <div class="alert alert-info small mb-3">
+                                <strong>Admin note:</strong> @editRequest.AdminNotes
+                            </div>
+                        }
+
+                        @if (editRequest != null && !string.IsNullOrEmpty(editRequest.FieldsToUpdate))
+                        {
+                            <div class="mb-3">
+                                <div class="micro-label mb-2">Sections requiring changes</div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var field in editRequest.FieldsToUpdate.Split(','))
+                                    {
+                                        var displayName = field switch
+                                        {
+                                            "LegalInfo" => "Legal",
+                                            "PANDetails" => "PAN",
+                                            "GSTDetails" => "GST",
+                                            "MSMEDetails" => "MSME",
+                                            "TDSDetails" => "TDS",
+                                            "BankDetails" => "Bank",
+                                            "AddressDetails" => "Address",
+                                            "ContactDetails" => "Contact",
+                                            _ => field
+                                        };
+                                        <span class="status-chip chip-new">@displayName</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3 px-4">
+                        <a href="/Admin/Details/@v.VendorId" class="btn btn-primary w-100">
+                            <i class="bi bi-eye me-1"></i> View Vendor
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+        </div>
+    }
+</div>

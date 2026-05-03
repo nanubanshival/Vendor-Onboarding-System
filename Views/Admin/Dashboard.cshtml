@@ -1,0 +1,574 @@
+@model List<VendorOnboardingSystem.Models.Vendor>
+@{
+    ViewData["Title"] = "Admin Dashboard";
+
+    var pendingVendors = Model.Where(x => x.Status == "Pending").ToList();
+    var changesSubmittedVendors = Model.Where(x => x.Status == "Changes Submitted").ToList();
+
+    int pendingCount = ViewBag.PendingCount ?? 0;
+    int changesSubmittedCount = ViewBag.ChangesSubmittedCount ?? 0;
+    int pendingSuperAdminCount = ViewBag.PendingSuperAdminCount ?? 0;
+    int approvedCount = ViewBag.ApprovedCount ?? 0;
+    int rejectedCount = ViewBag.RejectedCount ?? 0;
+    int changesRequestedCount = ViewBag.ChangesRequestedCount ?? 0;
+    int totalVendors = ViewBag.TotalVendors ?? 0;
+    string adminName = ViewBag.AdminName ?? "Admin";
+    bool isSuper = ViewBag.IsSuperAdmin == true;
+
+    string Initials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+        return (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpper();
+    }
+
+    string Ago(DateTime dt)
+    {
+        var span = DateTime.Now - dt;
+        if (span.TotalMinutes < 1) return "just now";
+        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes}m ago";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours}h ago";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays}d ago";
+        return dt.ToString("dd MMM yyyy");
+    }
+}
+
+<style>
+    .container.mt-4 { max-width: 1320px; }
+
+    /* ===== HERO (compact layout, readable text) ===== */
+    .hero {
+        background:
+            radial-gradient(600px 160px at 100% -40%, var(--brand-accent-subtle) 0%, transparent 60%),
+            #FFFFFF;
+        border: 0.5px solid var(--brand-border);
+        border-radius: 12px;
+        padding: .85rem 1.25rem;
+        margin-bottom: .75rem;
+        position: relative;
+    }
+    .hero h1 {
+        font-family: var(--font-display);
+        font-weight: 500;
+        font-size: 1.5rem;
+        line-height: 1.2;
+        color: var(--brand-text);
+        margin: 0;
+        letter-spacing: -.005em;
+        display: inline;
+    }
+    .hero h1 em {
+        font-style: italic; color: var(--brand-accent);
+        font-weight: 400;
+    }
+    .hero .lead {
+        color: var(--brand-text-2); font-size: .9rem; margin: .15rem 0 0;
+    }
+    .hero .lead strong {
+        color: var(--brand-accent-deep); font-weight: 600;
+        background: var(--brand-accent-subtle);
+        padding: 1px 7px; border-radius: 5px;
+    }
+
+    .role-pill {
+        display: inline-flex; align-items: center; gap: .35rem;
+        background: var(--brand-accent-subtle);
+        color: var(--brand-accent-deep);
+        font-size: .68rem; font-weight: 600;
+        letter-spacing: .12em; text-transform: uppercase;
+        padding: .2rem .7rem; border-radius: 999px;
+        vertical-align: middle; margin-right: .65rem;
+    }
+
+    /* ===== BUTTONS (compact pad, readable text) ===== */
+    .btn-indigo, .btn-outline-indigo, .btn-soft {
+        padding: .42rem .9rem; border-radius: 8px;
+        font-family: var(--font-body); font-size: .85rem; font-weight: 500;
+        letter-spacing: .005em; transition: .18s ease;
+        display: inline-flex; align-items: center; gap: .4rem;
+        text-decoration: none;
+    }
+    .btn-indigo {
+        background: var(--brand-accent); color: #fff;
+        border: 0.5px solid var(--brand-accent);
+    }
+    .btn-indigo:hover {
+        background: var(--brand-accent-deep); color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 .35rem .7rem rgba(79,70,229,.18);
+    }
+    .btn-outline-indigo {
+        background: transparent; color: var(--brand-accent);
+        border: 0.5px solid var(--brand-accent);
+    }
+    .btn-outline-indigo:hover { background: var(--brand-accent-subtle); color: var(--brand-accent-deep); }
+    .btn-soft {
+        background: var(--brand-surface); color: var(--brand-text-2);
+        border: 0.5px solid var(--brand-border);
+    }
+    .btn-soft:hover { background: var(--brand-muted); color: var(--brand-text); }
+
+    /* ===== STAT CARDS (inline, compact pad, readable text) ===== */
+    .stat {
+        background: #fff;
+        border: 0.5px solid var(--brand-border);
+        border-radius: 11px;
+        padding: .7rem .85rem;
+        position: relative;
+        transition: .2s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex; align-items: center; gap: .75rem;
+        height: 100%;
+    }
+    .stat:hover {
+        border-color: var(--brand-accent-soft);
+        box-shadow: 0 .35rem .85rem rgba(13,20,36,.06), 0 0 0 .5px var(--brand-accent-soft);
+        transform: translateY(-1px);
+    }
+    .stat .ic {
+        width: 34px; height: 34px; border-radius: 8px;
+        background: var(--accent-bg, var(--brand-accent-subtle));
+        color: var(--accent-fg, var(--brand-accent));
+        display: flex; align-items: center; justify-content: center;
+        font-size: .95rem; flex-shrink: 0;
+    }
+    .stat .body { display: flex; flex-direction: column; min-width: 0; line-height: 1; }
+    .stat .num {
+        font-family: var(--font-display);
+        font-weight: 500; font-size: 1.65rem;
+        line-height: 1; color: var(--brand-text);
+        letter-spacing: -.01em;
+    }
+    .stat .lbl {
+        font-size: .7rem; letter-spacing: .1em;
+        text-transform: uppercase; color: var(--brand-text-3);
+        margin-top: .3rem; font-weight: 500;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .stat .arrow {
+        position: absolute; top: .55rem; right: .65rem;
+        color: var(--brand-text-3); transition: .2s ease;
+        font-size: .8rem; opacity: .55;
+    }
+    .stat:hover .arrow { color: var(--brand-accent); opacity: 1; transform: translate(1px,-1px); }
+
+    /* ===== PANEL (Review Queue — page hero) ===== */
+    .panel {
+        background: #fff;
+        border: 0.5px solid var(--brand-border);
+        border-radius: 16px;
+        padding: 1.5rem 1.75rem;
+        box-shadow: 0 .5rem 1.4rem rgba(13,20,36,.04);
+    }
+    .panel-title {
+        font-family: var(--font-display);
+        font-weight: 500; font-size: 1.75rem;
+        color: var(--brand-text); margin: 0;
+        letter-spacing: -.01em;
+    }
+    .panel-sub { font-size: .85rem; color: var(--brand-text-2); margin: .2rem 0 0; }
+
+    .micro-label {
+        font-size: .7rem; letter-spacing: .12em;
+        text-transform: uppercase; color: var(--brand-text-3);
+        font-weight: 500;
+    }
+
+    /* ===== SEARCH ===== */
+    .search-wrap { position: relative; flex: 1; max-width: 380px; min-width: 260px; }
+    .search-wrap i.bi-search {
+        position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+        color: var(--brand-text-3); pointer-events: none;
+    }
+    .search-input {
+        background: #fff;
+        border: 0.5px solid var(--brand-border);
+        color: var(--brand-text);
+        padding: .6rem 2.5rem .6rem 2.65rem;
+        border-radius: 10px; font-size: .9rem; width: 100%;
+        font-family: var(--font-body);
+        transition: .15s ease;
+    }
+    .search-input::placeholder { color: var(--brand-text-3); }
+    .search-input:focus {
+        outline: none; border-color: var(--brand-accent);
+        box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+    }
+    .search-wrap .kbd-hint {
+        position: absolute; right: .75rem; top: 50%; transform: translateY(-50%);
+        font-size: .68rem; color: var(--brand-text-3);
+        background: var(--brand-surface);
+        border: 0.5px solid var(--brand-border); padding: 1px 6px; border-radius: 4px;
+        font-family: 'SF Mono', Menlo, monospace;
+    }
+
+    /* ===== FILTER PILLS ===== */
+    .pill {
+        background: #fff;
+        border: 0.5px solid var(--brand-border);
+        color: var(--brand-text-2);
+        padding: .45rem 1rem; border-radius: 999px;
+        font-size: .82rem; font-weight: 500;
+        cursor: pointer; transition: .15s ease;
+        display: inline-flex; align-items: center; gap: .4rem;
+        text-decoration: none;
+    }
+    .pill:hover { border-color: var(--brand-accent-soft); color: var(--brand-accent); background: var(--brand-accent-subtle); }
+    .pill.active {
+        background: var(--brand-accent); border-color: var(--brand-accent);
+        color: #fff; font-weight: 600;
+        box-shadow: 0 .25rem .5rem rgba(79,70,229,.15);
+    }
+    .pill .count {
+        font-size: .7rem; padding: 1px 7px; border-radius: 999px;
+        background: var(--brand-surface); color: var(--brand-text-2);
+        font-weight: 600;
+    }
+    .pill:hover .count { background: #fff; color: var(--brand-accent); }
+    .pill.active .count { background: rgba(255,255,255,.22); color: #fff; }
+
+    /* ===== VENDOR ROWS ===== */
+    .vrow {
+        display: flex; align-items: center; gap: 1.1rem;
+        background: #fff;
+        border: 0.5px solid var(--brand-border);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: .65rem;
+        text-decoration: none; color: inherit;
+        transition: .18s ease;
+    }
+    .vrow:hover {
+        border-color: var(--brand-accent-soft);
+        box-shadow: 0 .55rem 1.2rem rgba(13,20,36,.06), 0 0 0 .5px var(--brand-accent-soft);
+        transform: translateY(-1px);
+        color: inherit;
+        background: #FCFCFE;
+    }
+    .avatar {
+        width: 44px; height: 44px; border-radius: 11px; flex: none;
+        background: var(--brand-accent-subtle);
+        border: 0.5px solid var(--brand-accent-soft);
+        color: var(--brand-accent);
+        display: flex; align-items: center; justify-content: center;
+        font-family: var(--font-display);
+        font-weight: 500; font-size: 1.05rem;
+        letter-spacing: .01em;
+    }
+    .vrow:hover .avatar {
+        background: var(--brand-accent); color: #fff; border-color: var(--brand-accent);
+    }
+    .v-name {
+        font-family: var(--font-display); font-weight: 500;
+        font-size: 1.1rem; color: var(--brand-text);
+        line-height: 1.2; letter-spacing: -.005em;
+    }
+    .v-meta {
+        display: flex; gap: 1.1rem; flex-wrap: wrap;
+        color: var(--brand-text-2); font-size: .78rem;
+        margin-top: .4rem;
+    }
+    .v-meta span i { color: var(--brand-text-3); margin-right: .3rem; }
+
+    /* ===== STATUS CHIPS (per design system) ===== */
+    .chip {
+        font-size: .7rem; font-weight: 500;
+        padding: .25rem .7rem; border-radius: 999px;
+        display: inline-flex; align-items: center; gap: .35rem;
+        border: 0.5px solid;
+    }
+    .chip-pending { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
+    .chip-changes { background: #EFF6FF; color: #1E40AF; border-color: #BFDBFE; }
+    .chip-ok      { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
+    .chip-rej     { background: #FEF2F2; color: #991B1B; border-color: #FECACA; }
+    .chip-new     { background: #EEF2FF; color: #3730A3; border-color: #C7D2FE; }
+
+    /* ===== ROW ACTION ===== */
+    .row-action {
+        font-size: .78rem; padding: .45rem .9rem; border-radius: 8px;
+        border: 0.5px solid var(--brand-border); color: var(--brand-text-2);
+        background: #fff;
+        display: inline-flex; align-items: center; gap: .35rem;
+        white-space: nowrap; font-weight: 500;
+        transition: .15s ease;
+    }
+    .vrow:hover .row-action {
+        background: var(--brand-accent); color: #fff; border-color: var(--brand-accent);
+    }
+    .row-action.warning {
+        background: var(--brand-warning); color: #fff; border-color: var(--brand-warning);
+    }
+    .vrow:hover .row-action.warning {
+        background: #B45309; border-color: #B45309;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty { padding: 3.25rem 1rem; text-align: center; }
+    .empty .icon-circle {
+        width: 78px; height: 78px; border-radius: 50%;
+        background: var(--brand-accent-subtle);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.85rem; color: var(--brand-accent);
+        margin-bottom: 1.1rem;
+    }
+    .empty h6 {
+        font-family: var(--font-display); font-weight: 500;
+        font-size: 1.4rem; color: var(--brand-text); margin-bottom: .25rem;
+        letter-spacing: -.005em;
+    }
+    .empty p { color: var(--brand-text-2); font-size: .88rem; margin: 0; }
+
+    .section-divider {
+        height: 0.5px; background: var(--brand-border);
+        margin: 0 .25rem;
+    }
+
+    @@media (max-width: 768px) {
+        .hero { padding: 1.5rem; }
+        .hero h1 { font-size: 1.85rem; }
+        .panel { padding: 1.25rem; }
+        .v-name { font-size: 1rem; }
+    }
+</style>
+
+<!-- ===== HERO (single-line) ===== -->
+<div class="hero">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="min-w-0">
+            <div>
+                <span class="role-pill">
+                    <i class="bi @(isSuper ? "bi-shield-fill-check" : "bi-shield-check")"></i>
+                    @(isSuper ? "Super Admin" : "Admin")
+                </span>
+                <h1>Welcome back, <em>@adminName</em></h1>
+            </div>
+            <p class="lead">
+                You have <strong>@(pendingCount + changesSubmittedCount)</strong> item@((pendingCount + changesSubmittedCount) == 1 ? "" : "s") awaiting your review · @totalVendors total vendor@(totalVendors == 1 ? "" : "s") on record
+            </p>
+        </div>
+        <div class="d-flex flex-wrap gap-1">
+            <a href="/Admin/InviteVendor" class="btn-indigo">
+                <i class="bi bi-envelope-plus"></i> Invite Vendor
+            </a>
+            <a href="/Admin/GenerateLink" class="btn-outline-indigo">
+                <i class="bi bi-link-45deg"></i> Generate Link
+            </a>
+            <a href="/Admin/Invitations" class="btn-soft">
+                <i class="bi bi-list-ul"></i> Invitations
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== STATS ===== -->
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-4 col-lg">
+        <a href="#" data-filter="Pending" class="stat filter-link"
+           style="--accent-bg:#FFFBEB; --accent-fg:#D97706">
+            <i class="bi bi-arrow-up-right arrow"></i>
+            <div class="ic"><i class="bi bi-hourglass-split"></i></div>
+            <div class="body">
+                <div class="num">@pendingCount</div>
+                <div class="lbl">Pending Review</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg">
+        <a href="#" data-filter="Changes Submitted" class="stat filter-link"
+           style="--accent-bg:#EFF6FF; --accent-fg:#0284C7">
+            <i class="bi bi-arrow-up-right arrow"></i>
+            <div class="ic"><i class="bi bi-arrow-repeat"></i></div>
+            <div class="body">
+                <div class="num">@changesSubmittedCount</div>
+                <div class="lbl">Changes Submitted</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg">
+        <a href="/Admin/PendingSuperAdmin" class="stat"
+           style="--accent-bg:#EEF2FF; --accent-fg:#4F46E5">
+            <i class="bi bi-arrow-up-right arrow"></i>
+            <div class="ic"><i class="bi bi-shield-check"></i></div>
+            <div class="body">
+                <div class="num">@pendingSuperAdminCount</div>
+                <div class="lbl">Super Admin Queue</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg">
+        <a href="/Admin/Approved" class="stat"
+           style="--accent-bg:#ECFDF5; --accent-fg:#059669">
+            <i class="bi bi-arrow-up-right arrow"></i>
+            <div class="ic"><i class="bi bi-check-circle"></i></div>
+            <div class="body">
+                <div class="num">@approvedCount</div>
+                <div class="lbl">Approved</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg">
+        <a href="/Admin/Rejected" class="stat"
+           style="--accent-bg:#FEF2F2; --accent-fg:#DC2626">
+            <i class="bi bi-arrow-up-right arrow"></i>
+            <div class="ic"><i class="bi bi-x-circle"></i></div>
+            <div class="body">
+                <div class="num">@rejectedCount</div>
+                <div class="lbl">Rejected</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- ===== REVIEW QUEUE ===== -->
+<div class="panel">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
+        <div>
+            <div class="micro-label mb-2">Active workflow</div>
+            <h3 class="panel-title">Review Queue</h3>
+            <p class="panel-sub">Vendors awaiting your decision</p>
+        </div>
+        <div class="search-wrap">
+            <i class="bi bi-search"></i>
+            <input id="vendorSearch" type="text" class="search-input" placeholder="Search by name, PAN, reference..." />
+            <span class="kbd-hint">/</span>
+        </div>
+    </div>
+
+    <div class="section-divider mb-3"></div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4" id="filterPills">
+        <button class="pill active" data-filter="all">
+            All <span class="count">@Model.Count</span>
+        </button>
+        <button class="pill" data-filter="Pending">
+            <i class="bi bi-hourglass-split"></i> Pending <span class="count">@pendingCount</span>
+        </button>
+        <button class="pill" data-filter="Changes Submitted">
+            <i class="bi bi-arrow-repeat"></i> Changes Submitted <span class="count">@changesSubmittedCount</span>
+        </button>
+        <a href="/Admin/PendingEdits" class="pill">
+            <i class="bi bi-pencil-square"></i> Pending Edits <span class="count">@changesRequestedCount</span>
+        </a>
+    </div>
+
+    <div id="vendorList">
+        @if (!Model.Any())
+        {
+            <div class="empty">
+                <div class="icon-circle"><i class="bi bi-inbox"></i></div>
+                <h6>All caught up</h6>
+                <p>No vendors waiting for review right now.</p>
+            </div>
+        }
+        else
+        {
+            foreach (var vendor in Model)
+            {
+                var isChanges = vendor.Status == "Changes Submitted";
+                var displayDate = isChanges ? (vendor.UpdatedAt ?? vendor.CreatedAt) : vendor.CreatedAt;
+                <a href="/Admin/Details/@vendor.VendorId"
+                   class="vrow vendor-item"
+                   data-status="@vendor.Status"
+                   data-search="@($"{vendor.LegalName} {vendor.PAN} {vendor.ReferenceNumber} {vendor.Email}".ToLower())">
+
+                    <div class="avatar">@Initials(vendor.LegalName)</div>
+
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="v-name text-truncate">@vendor.LegalName</span>
+                            @if (isChanges)
+                            {
+                                <span class="chip chip-changes"><i class="bi bi-arrow-repeat"></i>Changes Submitted</span>
+                            }
+                            else
+                            {
+                                <span class="chip chip-pending"><i class="bi bi-hourglass-split"></i>Pending</span>
+                            }
+                        </div>
+                        <div class="v-meta">
+                            <span><i class="bi bi-hash"></i>@vendor.ReferenceNumber</span>
+                            <span><i class="bi bi-credit-card-2-front"></i>@vendor.PAN</span>
+                            @if (!string.IsNullOrEmpty(vendor.GSTIN))
+                            {
+                                <span><i class="bi bi-receipt"></i>@vendor.GSTIN</span>
+                            }
+                            <span><i class="bi bi-clock"></i>@Ago(displayDate)</span>
+                        </div>
+                    </div>
+
+                    <div class="d-none d-md-block">
+                        <span class="row-action @(isChanges ? "warning" : "")">
+                            @(isChanges ? "Review Changes" : "View")
+                            <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                    <i class="bi bi-chevron-right d-md-none" style="color:var(--brand-text-3)"></i>
+                </a>
+            }
+        }
+    </div>
+
+    <div id="emptyFiltered" class="empty d-none">
+        <div class="icon-circle"><i class="bi bi-search"></i></div>
+        <h6>No matches</h6>
+        <p>Try adjusting your search or filter.</p>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const pills = document.querySelectorAll('#filterPills .pill[data-filter]');
+    const items = document.querySelectorAll('.vendor-item');
+    const search = document.getElementById('vendorSearch');
+    const emptyFiltered = document.getElementById('emptyFiltered');
+    let activeFilter = 'all';
+    let activeSearch = '';
+
+    function apply() {
+        let visible = 0;
+        items.forEach(el => {
+            const matchStatus = activeFilter === 'all' || el.dataset.status === activeFilter;
+            const matchSearch = !activeSearch || el.dataset.search.includes(activeSearch);
+            const show = matchStatus && matchSearch;
+            el.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+        emptyFiltered.classList.toggle('d-none', visible !== 0 || items.length === 0);
+    }
+
+    pills.forEach(p => p.addEventListener('click', e => {
+        e.preventDefault();
+        pills.forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+        activeFilter = p.dataset.filter;
+        apply();
+    }));
+
+    document.querySelectorAll('.filter-link').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const f = link.dataset.filter;
+            const pill = document.querySelector('#filterPills .pill[data-filter="' + f + '"]');
+            if (pill) pill.click();
+            document.getElementById('vendorList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    if (search) {
+        search.addEventListener('input', () => {
+            activeSearch = search.value.trim().toLowerCase();
+            apply();
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === '/' && document.activeElement !== search) {
+                e.preventDefault();
+                search.focus();
+            }
+        });
+    }
+})();
+</script>
+}

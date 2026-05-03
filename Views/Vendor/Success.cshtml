@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Registration Successful";
+}
+
+<div class="auth-bg">
+    <div class="brand-panel text-center" style="max-width:520px;width:100%;padding:2.5rem 2rem;">
+
+        <div class="mx-auto mb-4 d-flex align-items-center justify-content-center rounded-circle"
+             style="width:80px;height:80px;background:var(--brand-success-bg);border:0.5px solid var(--brand-success-border);">
+            <i class="bi bi-check-lg" style="font-size:2.4rem;color:var(--brand-success);"></i>
+        </div>
+
+        <h2 class="ds-h mb-2" style="font-size:1.7rem;">Registration <em style="color:var(--brand-accent);font-style:italic;font-weight:400;">Submitted</em></h2>
+        <p class="text-muted mb-4">Your vendor registration has been received and is under review. Our team will get back to you within 2–3 business days.</p>
+
+        <div class="rounded-3 p-3 mb-4" style="background:var(--brand-success-bg);border:0.5px dashed var(--brand-success-border);">
+            <p class="micro-label mb-1">Reference Number</p>
+            <p class="fw-bold mb-0 font-monospace fs-4" style="color:var(--brand-success);letter-spacing:.08em;">@ViewBag.ReferenceNumber</p>
+        </div>
+
+        <p class="text-muted small mb-4">
+            <i class="bi bi-info-circle me-1"></i>
+            Please save this reference number for future correspondence.
+        </p>
+
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="/" class="btn btn-outline-secondary">
+                <i class="bi bi-house me-1"></i> Home
+            </a>
+            <a href="/VendorLogin/Index" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Vendor Login
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,97 @@
+@{
+    ViewData["Title"] = "Link Generated";
+    var link = TempData["GeneratedLink"] as string;
+    var expiryDate = TempData["ExpiryDate"] as string;
+    var token = TempData["Token"] as string;
+}
+
+<div class="container py-4" style="max-width:760px;">
+    <div class="page-head d-flex justify-content-between align-items-end gap-3">
+        <div>
+            <span class="micro-label d-block mb-1" style="color:var(--brand-success);">
+                <i class="bi bi-check-circle-fill"></i> Success
+            </span>
+            <h2 class="ds-h" style="font-size:1.85rem;">Link <em style="font-style:italic;color:var(--brand-accent);font-weight:400;">Generated</em></h2>
+            <p class="lead">Share this registration link with the vendor</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/Admin/GenerateLink" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Generate Another</a>
+            <a href="/Admin/Invitations" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ul"></i> All Links</a>
+        </div>
+    </div>
+
+    <div class="brand-panel">
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle me-1"></i>
+            <strong>Expires on:</strong> @expiryDate
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Registration Link</label>
+            <div class="input-group">
+                <input type="text" id="registrationLink" class="form-control font-monospace" value="@link" readonly />
+                <button class="btn btn-primary" onclick="copyLink()">
+                    <i class="bi bi-clipboard"></i> Copy
+                </button>
+            </div>
+        </div>
+
+        <hr class="brand-divider" />
+
+        <span class="micro-label d-block mb-2">Share via</span>
+        <div class="d-flex gap-2 flex-wrap mb-4">
+            <a href="https://web.whatsapp.com/send?text=Please%20register%20using%20this%20link:%20@Uri.EscapeDataString(link ?? "")"
+               target="_blank" class="btn btn-success">
+                <i class="bi bi-whatsapp"></i> WhatsApp
+            </a>
+            <a href="mailto:?subject=Vendor%20Registration%20Link&body=Please%20register%20using%20this%20link:%20@Uri.EscapeDataString(link ?? "")"
+               class="btn btn-primary">
+                <i class="bi bi-envelope"></i> Email
+            </a>
+            <button class="btn btn-info" onclick="shareTelegram()">
+                <i class="bi bi-telegram"></i> Telegram
+            </button>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="showQR" onchange="toggleQR()">
+            <label class="form-check-label small text-muted" for="showQR">Show QR code</label>
+        </div>
+        <div id="qrContainer" style="display:none;margin-top:1rem;" class="text-center">
+            <div id="qrcode" class="d-inline-block p-3" style="background:#fff;border:0.5px solid var(--brand-border);border-radius:11px;"></div>
+            <p class="small text-muted mt-2">Scan to open registration link</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        function copyLink() {
+            var copyText = document.getElementById("registrationLink");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            var btn = event.target.closest('button');
+            var originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg"></i> Copied';
+            setTimeout(function() { btn.innerHTML = originalText; }, 2000);
+        }
+        function shareTelegram() {
+            var link = document.getElementById("registrationLink").value;
+            window.open("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Vendor Registration Link"), '_blank');
+        }
+        function toggleQR() {
+            var container = document.getElementById("qrContainer");
+            if (document.getElementById("showQR").checked) {
+                container.style.display = "block";
+                if (!document.getElementById("qrcode").innerHTML) {
+                    new QRCode(document.getElementById("qrcode"), {
+                        text: document.getElementById("registrationLink").value,
+                        width: 200, height: 200
+                    });
+                }
+            } else { container.style.display = "none"; }
+        }
+    </script>
+}
